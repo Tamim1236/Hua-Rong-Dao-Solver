@@ -8,6 +8,7 @@ import sys
 
 char_goal = '1'
 char_single = '2'
+char_empty = '.'
 
 class Piece:
     """
@@ -212,3 +213,19 @@ def get_heuristic(state):
             if(curr_grid[i][j] == char_goal):
                 return manhattan_distance((i, j) , (3,1))
                 # return manhattan distance from upper left of goal piece to the goal position 3,1
+
+def generate_successors(state):
+    # first find the positions of each of the empty tiles
+    empty1 = None
+    empty2 = None
+
+    for i in range(len(state)):
+        for j in range(len(state[0])):
+            if(state[i][j] == char_empty):
+                if empty1 == None: # if we encountered the first empty
+                    empty1 = (i,j)
+                else: # we are seeing the second empty tile
+                    empty2 = (i,j)
+    
+    legal_moves = []
+    
