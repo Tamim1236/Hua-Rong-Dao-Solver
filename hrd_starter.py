@@ -58,7 +58,7 @@ class Board:
         # self.grid is a 2-d (size * size) array automatically generated
         # using the information on the pieces when a board is being created.
         # A grid contains the symbol for representing the pieces on the board.
-        self.grid = []
+        self.grid = [] # we append lines (the rows) which makes in 2D
         self.__construct_grid()
 
 
@@ -70,7 +70,7 @@ class Board:
 
         for i in range(self.height):
             line = []
-            for j in range(self.width):
+            for j in range(self.width): # to create each row (which has 4 entries)
                 line.append('.')
             self.grid.append(line)
 
@@ -197,4 +197,18 @@ if __name__ == "__main__":
 
 
 
+def manhattan_distance(position1, position2):
+    return (abs(position1[0] - position2[0]) + abs(position1[1] - position2[1]))
 
+def goal_test(state):
+    return (state.board.grid[3][1] == char_goal) 
+    # if the top left corner of goal char is at 3,1 then returns true
+
+def get_heuristic(state):
+    # need to find the top-left corner of goal piece and compute manhattan
+    curr_grid = state.board.grid
+    for i in range(len(curr_grid)):
+        for j in range(len(curr_grid[0])):
+            if(curr_grid[i][j] == char_goal):
+                return manhattan_distance((i, j) , (3,1))
+                # return manhattan distance from upper left of goal piece to the goal position 3,1
