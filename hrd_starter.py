@@ -347,7 +347,94 @@ def do_1x1_piece(state, row, col):
 
 def do_1x2_piece(state, row, col):
     # first check orientation of the piece, whether its 2x1 or 1x2
-    pass
+    
+    # check if its a 1x2 piece
+    if(state.board.grid[row][col] == '<'):
+        # check if we can move up
+        if(check_valid_move(state, row-1, col) and check_valid_move(state, row-1, col+1)):
+            new_successor = deepcopy(state)
+            
+            # shift up
+            new_successor[row-1][col] = '<'
+            new_successor[row-1][col+1] = '>'
+
+            # remove below due to shift up
+            new_successor[row][col] = char_empty
+            new_successor[row][col+1] = char_empty
+        
+        # check if we can move down
+        if(check_valid_move(state, row+1, col) and check_valid_move(state, row+1, col+1)):
+            new_successor = deepcopy(state)
+            
+            # shift down
+            new_successor[row+1][col] = '<'
+            new_successor[row+1][col+1] = '>'
+
+            # remove below due to shift down
+            new_successor[row][col] = char_empty
+            new_successor[row][col+1] = char_empty
+        
+        # check if we can move left
+        if(check_valid_move(state, row, col-1)):
+            new_successor = deepcopy(state)
+
+            new_successor[row][col-1] = '<'
+            new_successor[row][col] = '>'
+            new_successor[row][col+1] = char_empty
+
+        # check if we can move right
+        if(check_valid_move(state, row, col+2)):
+            new_successor = deepcopy(state)
+
+            new_successor[row][col+2] = '>'
+            new_successor[row][col+1] = '<'
+            new_successor[row][col] = char_empty    
+    
+
+    # else it is vertical orientation (2x1 piece)
+    else:
+        # check vertical movement
+        if(check_valid_move(state, row-1, col)):
+            new_successor = deepcopy(state)
+
+            new_successor[row-1][col] = '^'
+            new_successor[row][col] = 'v'
+            new_successor[row+1][col] = char_empty
+        
+        # check downward movement
+        if(check_valid_move(state, row+2, col)):
+            new_successor = deepcopy(state)
+
+            new_successor[row+2][col] = 'v'
+            new_successor[row+1][col] = '^'
+            new_successor[row][col] = char_empty
+        
+        # check leftward movement
+        if(check_valid_move(state, row, col-1) and check_valid_move(state, row+1, col-1)):
+            # make a copy of the current state
+            new_successor = deepcopy(state)
+            
+            # shift left
+            new_successor.board.grid[row][col-1] = '^'
+            new_successor.board.grid[row+1][col-1] = 'v'
+
+            # current spots become empty due to shift left
+            new_successor.board.grid[row][col-1] = char_empty
+            new_successor.board.grid[row+1][col-1] = char_empty
+
+
+        # check rightward movement
+        if(check_valid_move(state, row, col+1) and check_valid_move(state, row+1, col+1)):
+            # make a copy of the current state
+            new_successor = deepcopy(state)
+            
+            # shift left
+            new_successor.board.grid[row][col+1] = '^'
+            new_successor.board.grid[row+1][col+1] = 'v'
+
+            # current spots become empty due to shift left
+            new_successor.board.grid[row][col] = char_empty
+            new_successor.board.grid[row+1][col] = char_empty
 
 
 def DFS(state):
