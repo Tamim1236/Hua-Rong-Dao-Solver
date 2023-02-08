@@ -216,22 +216,38 @@ def get_heuristic(state):
 
 def generate_successors(state):
     # first find the positions of each of the empty tiles
-    empty1 = None
-    empty2 = None
+    curr_grid = state.board.grid
 
-    for i in range(len(state)):
-        for j in range(len(state[0])):
-            if(state[i][j] == char_empty):
-                if empty1 == None: # if we encountered the first empty
-                    empty1 = (i,j)
-                else: # we are seeing the second empty tile
-                    empty2 = (i,j)
+    for i in range(len(curr_grid)):
+        for j in range(len(curr_grid[0])):
+            print("hello")
+
+# need the spot to be empty and within the board for the spot to be valid
+def check_valid_move(state, row, col):
+    if(state[row][col] == char_empty and (0 <= row < len(state.board.width) and (0 <= col < len(state.board.height)))):
+        return True
+    else:
+        return False 
+
+
+
+# pass in the row and col of the 2x2 piece (! which is top left-most position of it)
+def check_2x2_piece(state, row, col):
+    # check up
+    if(check_valid_move(state, row-1, col) and check_valid_move(state, row-1, col+1)):
+        # do a move up on state copy and add that as a successor
     
-    legal_moves = []
-
-    for state.board.
+    # check down
+    if(check_valid_move(state, row+2, col) and check_valid_move(state, row+2, col+1)):
+        # do a move down on state copy and add that as a successor
     
+    # check left
+    if(check_valid_move(state, row, col-1) and check_valid_move(state, row+1, col-1)):
+        # do a move left on state copy and add that as a successor
 
+    # check right
+    if(check_valid_move(state, row, col+2) and check_valid_move(state, row+1, col+2)):
+        # do a move right on state copy and add that as a successor
 
 
 def DFS(state):
