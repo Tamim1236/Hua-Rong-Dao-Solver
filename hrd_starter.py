@@ -70,10 +70,10 @@ class Board:
         """
 
         for i in range(self.height):
-            line = []
+            line = [] # a new row to append into the grid
             for j in range(self.width): # to create each row (which has 4 entries)
-                line.append('.')
-            self.grid.append(line)
+                line.append('.') # adding 4 empty spots to the new row to be added to grid
+            self.grid.append(line) # adding the new line into the grid
 
         for piece in self.pieces:
             if piece.is_goal:
