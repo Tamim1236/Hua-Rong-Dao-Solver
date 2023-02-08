@@ -228,4 +228,25 @@ def generate_successors(state):
                     empty2 = (i,j)
     
     legal_moves = []
+
+    for state.board.
     
+
+
+
+def DFS(state):
+    # push the initial state (argument) onto the stack
+    # pop the top state from the stack, if it is the goal then return
+    # else generate all successors and add them to the stack and repeat the process until the stack is empty
+
+
+def A_star(state):
+    # push the initial state onto the priority queue with its cost + heuristic value
+    # the cost so far is the number of moves that have been taken so far to reach the state from the start state
+    # add states and repeat until the prioirty queue is empty
+
+
+# ideas for generating successors:
+#   - for each piece on the board, check for the validity (if empty spot) of each up, down, left, right positions
+#     (check_valid_move() can be one of the helper functions)
+#   - if the move is valid, then move the piece on a copy of the current state, then add this state to list
