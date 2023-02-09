@@ -203,9 +203,9 @@ if __name__ == "__main__":
 
 
 
-def manhattan_distance(state):
-    position_1_row = state.board.goal_piece_coordinates[1]
-    position_1_col = state.board.goal_piece_coordinates[0]
+def manhattan_distance(board):
+    position_1_row = board.goal_piece_coordinates[1]
+    position_1_col = board.goal_piece_coordinates[0]
 
     # the goal coordinate for the 2x2 piece is at (ro1, col) = (3, 1)
     position_end_row = 3
@@ -247,7 +247,9 @@ def get_new_state(state, piece_x, piece_y, direction):
     
     # now create a new state using this board and add it as a successor
     # f-value the same as the depth?
-    new_state = State(new_board, f = state.depth + 1, depth = state.depth + 1, parent = state)
+    updated_depth = state.depth + 1
+    f_value = updated_depth + manhattan_distance(new_board)
+    new_state = State(new_board, f = f_value, depth = updated_depth, parent = state)
     
     return new_state
 
