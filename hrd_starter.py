@@ -207,6 +207,37 @@ def goal_test(state):
     return (state.board.grid[4][1] == char_goal and state.board.grid[4][2] == char_goal)
 
 
+# this function is used to move the piece and then create and return a new state
+# direction can be 'up', 'down', 'left', or 'right'
+def get_new_state(state, piece_x, piece_y, direction):
+    curr_board = state.board
+    
+    new_board = deepcopy(curr_board) # create a new board - will move piece on this board
+
+    # find the piece on the new baord and update its position (move it up)           
+    for piece in new_board.state.pieces:
+        if(piece.coord_x == piece_x and piece.coord_y == piece_y):
+            
+            if direction == "left":
+                piece.coord_x -= 1
+            
+            elif direction == "right":
+                piece.coord_x += 1
+            
+            elif direction = "up":
+                piece.coord_y += 1
+            
+            else:
+                piece.coord_y -= 1
+            
+            # piece moved so now break out of loop
+            break
+    
+    # now create a new state using this board and add it as a successor
+    # f-value the same as the depth?
+    new_state = State(new_board, f = state.depth + 1, depth = state.depth + 1, parent = state)
+    
+    return new_state
 
 def generate_successors(state):
     successors = []   # a list to store all our successors, to be returned at the end
@@ -220,24 +251,23 @@ def generate_successors(state):
         
         # try moving up
         if(check_valid_spot(state, row-1, col)):
-            new_board = deepcopy(curr_board)
-
-            for piece in new_board.state.pieces:
-                pass
-
+            pass
 
         # try moving down
         if(check_valid_spot(state, row+1, col)):
+            
             pass
+
 
         # try moving left
         if(check_valid_spot(state, row, col-1)):
+
             pass
 
         # try moving right
         if(check_valid_spot(state, row, col+1)):
-            pass
 
+            pass
 
 
     return successors
