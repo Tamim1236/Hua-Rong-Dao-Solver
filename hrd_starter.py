@@ -241,33 +241,68 @@ def get_new_state(state, piece_x, piece_y, direction):
 
 def generate_successors(state):
     successors = []   # a list to store all our successors, to be returned at the end
-    curr_board = state.board
     curr_pieces = state.pieces
 
     for piece in curr_pieces:
 
+        # get row and col from 
         row = piece.coord_y
         col = piece.coord_x
         
         # try moving up
         if(check_valid_spot(state, row-1, col)):
-            pass
+            # if 2x2 or 1x2 piece we need to check for another empty spot
+            if(piece.is_goal or piece.orientation == 'h'):
+                if(check_valid_spot(state, row-1, col+1)):
+                    # now generate the new state
+                    new_state = get_new_state(state, piece.coord_x, piece.coord_y, "up")
+                    successors.append(new_state)
+            
+            # else its just a 1x1 piece
+            else:
+                new_state = get_new_state(state, piece.coord_x, piece.coord_y, "up")
+                successors.append(new_state)
 
         # try moving down
         if(check_valid_spot(state, row+1, col)):
+            if(piece.is_goal or piece.orientation == 'h'):
+                if(check_valid_spot(state, row+1, col+1)):
+                    # now generate the new state
+                    new_state = get_new_state(state, piece.coord_x, piece.coord_y, "down")
+                    successors.append(new_state)
             
-            pass
+            # else its just a 1x1 piece
+            else:
+                new_state = get_new_state(state, piece.coord_x, piece.coord_y, "down")
+                successors.append(new_state)
 
 
         # try moving left
         if(check_valid_spot(state, row, col-1)):
+            if(piece.is_goal or piece.orientation == 'v'):
+                if(check_valid_spot(state, row+1, col-1)):
+                    # now generate the new state
+                    new_state = get_new_state(state, piece.coord_x, piece.coord_y, "left")
+                    successors.append(new_state)
+            
+            # else its just a 1x1 piece
+            else:
+                new_state = get_new_state(state, piece.coord_x, piece.coord_y, "left")
+                successors.append(new_state)
 
-            pass
 
         # try moving right
         if(check_valid_spot(state, row, col+1)):
-
-            pass
+            if(piece.is_goal or piece.orientation == 'v'):
+                if(check_valid_spot(state, row+1, col+1)):
+                    # now generate the new state
+                    new_state = get_new_state(state, piece.coord_x, piece.coord_y, "right")
+                    successors.append(new_state)
+            
+            # else its just a 1x1 piece
+            else:
+                new_state = get_new_state(state, piece.coord_x, piece.coord_y, "right")
+                successors.append(new_state)
 
 
     return successors
