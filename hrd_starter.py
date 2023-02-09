@@ -179,25 +179,26 @@ def read_from_file(filename):
 ################################
 
 def manhattan_distance(board):
-    position_1_row = board.goal_piece_coordinates[1]
-    position_1_col = board.goal_piece_coordinates[0]
+    position_1_x = board.goal_piece_coordinates[0]
+    position_1_y = board.goal_piece_coordinates[1]
 
-    # the goal coordinate for the 2x2 piece is at (ro1, col) = (3, 1)
-    position_end_row = 3
-    position_end_col = 1
+    # the goal coordinate for the 2x2 piece is at (x, y) = (1, 1)
+    position_end_x = 1
+    position_end_y = 1
 
-    return (abs(position_1_row - position_end_row) + abs(position_1_col - position_end_col))
+    return (abs(position_1_x - position_end_x) + abs(position_1_y - position_end_y))
 
 
 def goal_test(state):
-    return (state.board.grid[4][1] == char_goal and state.board.grid[4][2] == char_goal)
-    # alternatively, I could just check if the goal_piece_coordinates are at (row,col) = (3,1)
+    # we could also check that the right grid spots have goal characters
+    return (state.goal_piece_coordinates == [1,1])
 
 
 # need the spot to be empty and within the board for the spot to be valid
-def check_valid_spot(state, row, col):
-    if(state.board.grid[row][col] == char_empty and (0 <= row < len(state.board.width) and (0 <= col < len(state.board.height)))):
-        return True
+def check_valid_spot(state, x, y):
+    if(0 <= x < state.board.width and (0 <= y < state.board.height)):
+        if(state.board.grid[y][x] == char_empty):
+            return True
     else:
         return False 
 
@@ -242,15 +243,16 @@ def generate_successors(state):
 
     for piece in curr_pieces:
 
-        # get row and col from 
-        row = piece.coord_y
-        col = piece.coord_x
+        # get (x,y) coordinates of the current piece 
+        x = piece.coord_x
+        y = piece.coord_y
+        
         
         # try moving up
-        if(check_valid_spot(state, row-1, col)):
+        if(check_valid_spot(state, x, y+1)):
             # if 2x2 or 1x2 piece we need to check for another empty spot
             if(piece.is_goal or piece.orientation == 'h'):
-                if(check_valid_spot(state, row-1, col+1)):
+                if(check_valid_spot(state, x+1, y+1)):
                     # now generate the new state
                     new_state = get_new_state(state, piece.coord_x, piece.coord_y, "up")
                     successors.append(new_state)
@@ -261,9 +263,9 @@ def generate_successors(state):
                 successors.append(new_state)
 
         # try moving down
-        if(check_valid_spot(state, row+1, col)):
+        if(check_valid_spot(state, x, y-1)):
             if(piece.is_goal or piece.orientation == 'h'):
-                if(check_valid_spot(state, row+1, col+1)):
+                if(check_valid_spot(state, x+1, y-1)):
                     # now generate the new state
                     new_state = get_new_state(state, piece.coord_x, piece.coord_y, "down")
                     successors.append(new_state)
@@ -275,9 +277,9 @@ def generate_successors(state):
 
 
         # try moving left
-        if(check_valid_spot(state, row, col-1)):
+        if(check_valid_spot(state, x-1, y)):
             if(piece.is_goal or piece.orientation == 'v'):
-                if(check_valid_spot(state, row+1, col-1)):
+                if(check_valid_spot(state, x-1, y-1)):
                     # now generate the new state
                     new_state = get_new_state(state, piece.coord_x, piece.coord_y, "left")
                     successors.append(new_state)
@@ -289,9 +291,9 @@ def generate_successors(state):
 
 
         # try moving right
-        if(check_valid_spot(state, row, col+1)):
+        if(check_valid_spot(state, x+1, y)):
             if(piece.is_goal or piece.orientation == 'v'):
-                if(check_valid_spot(state, row+1, col+1)):
+                if(check_valid_spot(state, x+1, y-1)):
                     # now generate the new state
                     new_state = get_new_state(state, piece.coord_x, piece.coord_y, "right")
                     successors.append(new_state)
@@ -363,8 +365,9 @@ def write_to_file(filename, solution):
     with open(filename, "w") as file:
         # write the solution to the file
         for row in solution.board:
-            for cell in row:
-                file.write(str(cell))
+            for char in row:
+                file.write(str(char))
+            
             file.write("\n")
 
 
