@@ -14,7 +14,6 @@ class Piece:
     """
     This represents a piece on the Hua Rong Dao puzzle.
     """
-
     def __init__(self, is_goal, is_single, coord_x, coord_y, orientation):
         """
         :param is_goal: True if the piece is the goal piece and False otherwise.
@@ -134,6 +133,8 @@ class State:
     
     # overloading the < operator for the heap used in A*
     def __lt__(self, other):
+        if self.f == other.f:
+            return self.id < other.id
         return self.f < other.f
 
 
@@ -191,7 +192,7 @@ def manhattan_distance(board):
 
 def goal_test(state):
     # we could also check that the right grid spots have goal characters
-    return (state.goal_piece_coordinates == [1,1])
+    return (state.board.goal_piece_coordinates == [1,1])
 
 
 # need the spot to be empty and within the board for the spot to be valid
@@ -221,10 +222,10 @@ def get_new_state(state, piece_x, piece_y, direction):
                 piece.coord_x += 1
             
             elif direction == "up":
-                piece.coord_y += 1
+                piece.coord_y -= 1
             
             else: # moving the piece down
-                piece.coord_y -= 1
+                piece.coord_y += 1
             
             # piece moved so now break out of loop
             break
@@ -235,11 +236,13 @@ def get_new_state(state, piece_x, piece_y, direction):
     f_value = updated_depth + manhattan_distance(new_board)
     new_state = State(new_board, f = f_value, depth = updated_depth, parent = state)
     
+    print("here are the pieces of the new state: ")
+    print(new_state.board.pieces)
     return new_state
 
 def generate_successors(state):
     successors = []   # a list to store all our successors, to be returned at the end
-    curr_pieces = state.pieces
+    curr_pieces = state.board.pieces
 
     for piece in curr_pieces:
 
@@ -247,63 +250,93 @@ def generate_successors(state):
         x = piece.coord_x
         y = piece.coord_y
         
-        
-        # try moving up
-        if(check_valid_spot(state, x, y+1)):
-            # if 2x2 or 1x2 piece we need to check for another empty spot
-            if(piece.is_goal or piece.orientation == 'h'):
-                if(check_valid_spot(state, x+1, y+1)):
-                    # now generate the new state
-                    new_state = get_new_state(state, piece.coord_x, piece.coord_y, "up")
-                    successors.append(new_state)
-            
-            # else its just a 1x1 piece
-            else:
+        if(piece.is_goal):
+            # try up
+            if(check_valid_spot(state, x, y-1) and check_valid_spot(state, x+1, y-1)):     
                 new_state = get_new_state(state, piece.coord_x, piece.coord_y, "up")
                 successors.append(new_state)
 
-        # try moving down
-        if(check_valid_spot(state, x, y-1)):
-            if(piece.is_goal or piece.orientation == 'h'):
-                if(check_valid_spot(state, x+1, y-1)):
-                    # now generate the new state
-                    new_state = get_new_state(state, piece.coord_x, piece.coord_y, "down")
-                    successors.append(new_state)
-            
-            # else its just a 1x1 piece
-            else:
+            # try down
+            if(check_valid_spot(state, x, y+2) and check_valid_spot(state, x+1, y+2)):     
                 new_state = get_new_state(state, piece.coord_x, piece.coord_y, "down")
                 successors.append(new_state)
 
-
-        # try moving left
-        if(check_valid_spot(state, x-1, y)):
-            if(piece.is_goal or piece.orientation == 'v'):
-                if(check_valid_spot(state, x-1, y-1)):
-                    # now generate the new state
-                    new_state = get_new_state(state, piece.coord_x, piece.coord_y, "left")
-                    successors.append(new_state)
-            
-            # else its just a 1x1 piece
-            else:
+            # try left
+            if(check_valid_spot(state, x-1, y) and check_valid_spot(state, x-1, y+1)):     
                 new_state = get_new_state(state, piece.coord_x, piece.coord_y, "left")
                 successors.append(new_state)
 
-
-        # try moving right
-        if(check_valid_spot(state, x+1, y)):
-            if(piece.is_goal or piece.orientation == 'v'):
-                if(check_valid_spot(state, x+1, y-1)):
-                    # now generate the new state
-                    new_state = get_new_state(state, piece.coord_x, piece.coord_y, "right")
-                    successors.append(new_state)
-            
-            # else its just a 1x1 piece
-            else:
+            # try right
+            if(check_valid_spot(state, x+2, y) and check_valid_spot(state, x+2, y+1)):     
                 new_state = get_new_state(state, piece.coord_x, piece.coord_y, "right")
                 successors.append(new_state)
+        
+        elif(piece.orientation == 'h'):
+            # try up
+            if(check_valid_spot(state, x, y-1) and check_valid_spot(state, x+1, y-1)):     
+                new_state = get_new_state(state, piece.coord_x, piece.coord_y, "up")
+                successors.append(new_state)
+            
+            # try down
+            if(check_valid_spot(state, x, y+1) and check_valid_spot(state, x+1, y+1)):     
+                new_state = get_new_state(state, piece.coord_x, piece.coord_y, "down")
+                successors.append(new_state)
 
+            # try left
+            if(check_valid_spot(state, x-1, y)):     
+                new_state = get_new_state(state, piece.coord_x, piece.coord_y, "left")
+                successors.append(new_state)
 
+            # try right
+            if(check_valid_spot(state, x+2, y)):     
+                new_state = get_new_state(state, piece.coord_x, piece.coord_y, "right")
+                successors.append(new_state)
+        
+        
+        elif(piece.orientation == 'v'):
+            # try up
+            if(check_valid_spot(state, x, y-1)):     
+                new_state = get_new_state(state, piece.coord_x, piece.coord_y, "up")
+                successors.append(new_state)
+            
+            # try down
+            if(check_valid_spot(state, x, y+2)):     
+                new_state = get_new_state(state, piece.coord_x, piece.coord_y, "down")
+                successors.append(new_state)
+
+            # try left
+            if(check_valid_spot(state, x-1, y) and check_valid_spot(state, x-1, y+1)):     
+                new_state = get_new_state(state, piece.coord_x, piece.coord_y, "left")
+                successors.append(new_state)
+
+            # try right
+            if(check_valid_spot(state, x+1, y) and check_valid_spot(state, x+1, y+1)):     
+                new_state = get_new_state(state, piece.coord_x, piece.coord_y, "right")
+                successors.append(new_state)
+            
+
+        # its a 1x1 piece
+        else:
+            # try up
+            if(check_valid_spot(state, x, y-1)):     
+                new_state = get_new_state(state, piece.coord_x, piece.coord_y, "up")
+                successors.append(new_state)
+            
+            # try down
+            if(check_valid_spot(state, x, y+1)):     
+                new_state = get_new_state(state, piece.coord_x, piece.coord_y, "down")
+                successors.append(new_state)
+
+            # try left
+            if(check_valid_spot(state, x-1, y)):     
+                new_state = get_new_state(state, piece.coord_x, piece.coord_y, "left")
+                successors.append(new_state)
+
+            # try right
+            if(check_valid_spot(state, x+1, y)):     
+                new_state = get_new_state(state, piece.coord_x, piece.coord_y, "right")
+                successors.append(new_state)
+        
     return successors
 
 
@@ -322,15 +355,21 @@ def DFS(state):
     while frontier:
         curr_state = frontier.pop()
 
+        curr_state.board.display()
+        print()
+
+        # if curr_state.id in visited:
+        #     continue
+
         if goal_test(curr_state):
             return curr_state
         else:
-            visited.add(curr_state)
+            visited.add(curr_state.id)
             successors = generate_successors(curr_state)
 
             # make sure we only add successor states that haven't been explored yet
             for state in successors:
-                if state not in visited:
+                if state.id not in visited:
                     frontier.append(state)
     
     return None # if no solution is found - goal state is never reached
@@ -346,16 +385,30 @@ def A_star(state):
 
     while frontier:   
         curr_state = heappop(frontier)
+        print(curr_state.id)
+        if curr_state.id in visited:
+            continue
+        
+        visited.add(curr_state.id)
 
         if goal_test(curr_state):
             return curr_state
-        else:
-            visited.add(curr_state)
-            successors = generate_successors(curr_state)
 
-            for state in successors:
-                if state not in visited:
-                    heappush(frontier, state)
+        curr_state.board.display()
+        print()
+        
+
+        successors = generate_successors(curr_state)
+
+        for s in successors:
+            # print("Successor:")
+            # print(state.board.pieces)
+            heappush(frontier, s)
+        
+
+        # for state in successors:
+        #     if state.id not in visited:
+        #         heappush(frontier, state)
     
     return None
 
@@ -398,11 +451,13 @@ if __name__ == "__main__":
     # read the board from the file
     board = read_from_file(args.inputfile)
 
+    new_state = State(board, 0, 0, parent=None) # generate the initial state
+
     # run the wanted search algorithm
     if args.algo == 'astar':
-        solution = A_star(board)
+        solution = A_star(new_state)
     else:
-        solution = DFS(board)
+        solution = DFS(new_state)
 
     # write the solution to the output file
     write_to_file(args.outputfile, solution)
@@ -641,3 +696,69 @@ if __name__ == "__main__":
 #   - for each piece on the board, check for the validity (if empty spot) of each up, down, left, right positions
 #     (check_valid_move() can be one of the helper functions)
 #   - if the move is valid, then move the piece on a copy of the current state, then add this state to list
+
+
+
+
+
+
+
+
+       
+        # # try moving up
+        # if(check_valid_spot(state, x, y-1)):
+        #     # if 2x2 or 1x2 piece we need to check for another empty spot
+        #     if(piece.is_goal or piece.orientation == 'h'):
+        #         if(check_valid_spot(state, x+1, y-1)):
+        #             # now generate the new state
+        #             new_state = get_new_state(state, piece.coord_x, piece.coord_y, "up")
+        #             successors.append(new_state)
+            
+        #     # else its just a 1x1 piece
+        #     else:
+        #         new_state = get_new_state(state, piece.coord_x, piece.coord_y, "up")
+        #         successors.append(new_state)
+
+        # # try moving down
+        # if(check_valid_spot(state, x, y+1)):
+        #     if(piece.is_goal):
+        #         if(check_valid_spot(state, x+1, y-1)):
+        #             # now generate the new state
+        #             new_state = get_new_state(state, piece.coord_x, piece.coord_y, "down")
+        #             successors.append(new_state)
+            
+        #     elif(piece.orientation == 'h'):
+        #         pass
+            
+        #     # else its just a 1x1 piece
+        #     else:
+        #         new_state = get_new_state(state, piece.coord_x, piece.coord_y, "down")
+        #         successors.append(new_state)
+
+
+        # # try moving left
+        # if(check_valid_spot(state, x-1, y)):
+        #     if(piece.is_goal or piece.orientation == 'v'):
+        #         if(check_valid_spot(state, x-1, y-1)):
+        #             # now generate the new state
+        #             new_state = get_new_state(state, piece.coord_x, piece.coord_y, "left")
+        #             successors.append(new_state)
+            
+        #     # else its just a 1x1 piece
+        #     else:
+        #         new_state = get_new_state(state, piece.coord_x, piece.coord_y, "left")
+        #         successors.append(new_state)
+
+
+        # # try moving right
+        # if(check_valid_spot(state, x+1, y)):
+        #     if(piece.is_goal or piece.orientation == 'v'):
+        #         if(check_valid_spot(state, x+1, y-1)):
+        #             # now generate the new state
+        #             new_state = get_new_state(state, piece.coord_x, piece.coord_y, "right")
+        #             successors.append(new_state)
+            
+        #     # else its just a 1x1 piece
+        #     else:
+        #         new_state = get_new_state(state, piece.coord_x, piece.coord_y, "right")
+        #         successors.append(new_state)
