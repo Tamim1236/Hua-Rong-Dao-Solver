@@ -60,7 +60,7 @@ class Board:
         # using the information on the pieces when a board is being created.
         # A grid contains the symbol for representing the pieces on the board.
         self.grid = [] # we append lines (the rows) which makes in 2D
-        self.goal_piece_coordinates = [] # added this to keep track of the 2x2 piece's coordinates
+        self.goal_piece_coordinates = [0, 0] # added this to keep track of the 2x2 piece's coordinates
         self.__construct_grid()
 
 
@@ -174,38 +174,9 @@ def read_from_file(filename):
     board = Board(pieces)
     
     return board
-
-
-
-if __name__ == "__main__":
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--inputfile",
-        type=str,
-        required=True,
-        help="The input file that contains the puzzle."
-    )
-    parser.add_argument(
-        "--outputfile",
-        type=str,
-        required=True,
-        help="The output file that contains the solution."
-    )
-    parser.add_argument(
-        "--algo",
-        type=str,
-        required=True,
-        choices=['astar', 'dfs'],
-        help="The searching algorithm."
-    )
-    args = parser.parse_args()
-
-    # read the board from the file
-    board = read_from_file(args.inputfile)
     
 
-
+################################
 
 def manhattan_distance(board):
     position_1_row = board.goal_piece_coordinates[1]
@@ -372,7 +343,7 @@ def A_star(state):
     visited = set()
 
     while frontier:   
-        curr_state = frontier.heappop()
+        curr_state = heappop(frontier)
 
         if goal_test(curr_state):
             return curr_state
@@ -388,7 +359,50 @@ def A_star(state):
 
 
 
+def write_to_file(filename, solution):
+    with open(filename, "w") as file:
+        # write the solution to the file
+        for row in solution.board:
+            for cell in row:
+                file.write(str(cell))
+            file.write("\n")
 
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--inputfile",
+        type=str,
+        required=True,
+        help="The input file that contains the puzzle."
+    )
+    parser.add_argument(
+        "--outputfile",
+        type=str,
+        required=True,
+        help="The output file that contains the solution."
+    )
+    parser.add_argument(
+        "--algo",
+        type=str,
+        required=True,
+        choices=['astar', 'dfs'],
+        help="The searching algorithm."
+    )
+    args = parser.parse_args()
+
+    # read the board from the file
+    board = read_from_file(args.inputfile)
+
+    # run the wanted search algorithm
+    if args.algo == 'astar':
+        solution = A_star(board)
+    else:
+        solution = DFS(board)
+
+    # write the solution to the output file
+    write_to_file(args.outputfile, solution)
 
 
 
