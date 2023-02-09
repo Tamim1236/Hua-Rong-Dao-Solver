@@ -131,6 +131,10 @@ class State:
         self.depth = depth
         self.parent = parent
         self.id = hash(board)  # The id for breaking ties.
+    
+    # overloading the < operator for the heap used in A*
+    def __lt__(self, other):
+        return self.f < other.f
 
 
 def read_from_file(filename):
@@ -363,7 +367,24 @@ def A_star(state):
     # push the initial state onto the priority queue with its cost + heuristic value
     # the cost so far is the number of moves that have been taken so far to reach the state from the start state
     # add states and repeat until the prioirty queue is empty
-    pass
+    frontier = []
+    heappush(frontier, state) # add the first state to the frontier which is now a heap
+    visited = set()
+
+    while frontier:   
+        curr_state = frontier.heappop()
+
+        if goal_test(curr_state):
+            return curr_state
+        else:
+            visited.add(curr_state)
+            successors = generate_successors(curr_state)
+
+            for state in successors:
+                if state not in visited:
+                    heappush(frontier, state)
+    
+    return None
 
 
 
