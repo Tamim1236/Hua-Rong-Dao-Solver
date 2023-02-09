@@ -206,235 +206,52 @@ def goal_test(state):
     # if the top left corner of goal char is at 3,1 then returns true
     return (state.board.grid[4][1] == char_goal and state.board.grid[4][2] == char_goal)
 
-def get_heuristic(state):
-    # need to find the top-left corner of goal piece and compute manhattan
-    curr_grid = state.board.grid
-    for i in range(len(curr_grid)):
-        for j in range(len(curr_grid[0])):
-            if(curr_grid[i][j] == char_goal):
-                return manhattan_distance((i, j) , (3,1))
-                # return manhattan distance from upper left of goal piece to the goal position 3,1
+
 
 def generate_successors(state):
-    # first find the positions of each of the empty tiles
-    curr_grid = state.board.grid
+    successors = []   # a list to store all our successors, to be returned at the end
+    curr_board = state.board
+    curr_pieces = state.pieces
 
-    for i in range(len(curr_grid)):
-        for j in range(len(curr_grid[0])):
-            print("hello")
+    for piece in curr_pieces:
+
+        row = piece.coord_y
+        col = piece.coord_x
+        
+        # try moving up
+        if(check_valid_spot(state, row-1, col)):
+            new_board = deepcopy(curr_board)
+
+            for piece in new_board.state.pieces:
+                pass
+
+
+        # try moving down
+        if(check_valid_spot(state, row+1, col)):
+            pass
+
+        # try moving left
+        if(check_valid_spot(state, row, col-1)):
+            pass
+
+        # try moving right
+        if(check_valid_spot(state, row, col+1)):
+            pass
+
+
+
+    return successors
 
 # need the spot to be empty and within the board for the spot to be valid
-def check_valid_move(state, row, col):
-    if(state[row][col] == char_empty and (0 <= row < len(state.board.width) and (0 <= col < len(state.board.height)))):
+def check_valid_spot(state, row, col):
+    if(state.board.grid[row][col] == char_empty and (0 <= row < len(state.board.width) and (0 <= col < len(state.board.height)))):
         return True
     else:
         return False 
 
 
 
-# pass in the row and col of the 2x2 piece (! which is top left-most position of it)
-def do_2x2_piece(state, row, col):
-    # check up
-    if(check_valid_move(state, row-1, col) and check_valid_move(state, row-1, col+1)):
-        # do a move up on state copy and add that as a successor
-        
-        # make a copy of the current state
-        new_successor = deepcopy(state)
-        
-        # shift up
-        new_successor.board.grid[row-1, col] = char_goal
-        new_successor.board.grid[row-1, col+1] = char_goal
-        
-        # empty spots below the piece due to its shift up
-        new_successor.board.grid[row+1, col] = char_empty
-        new_successor.board.grid[row+1, col+1] = char_empty
 
-        # compute the new_successor's cost and update that attribute
-        # mark the 4 positions of the 2x2 piece in the OG state as completed
-        # add the successor to the heap
-
-    
-    # check down
-    if(check_valid_move(state, row+2, col) and check_valid_move(state, row+2, col+1)):
-        # do a move down on state copy and add that as a successor
-
-        # make a copy of the current state
-        new_successor = deepcopy(state)
-        
-        # shift down
-        new_successor.board.grid[row+2, col] = char_goal
-        new_successor.board.grid[row+2, col+1] = char_goal
-        
-        # empty spots below the piece due to its shift down
-        new_successor.board.grid[row, col] = char_empty
-        new_successor.board.grid[row, col+1] = char_empty
-
-        # compute the new_successor's cost and update that attribute
-        # mark the 4 positions of the 2x2 piece in the OG state as completed
-        # add the successor to the heap
-
-    
-    # check left
-    if(check_valid_move(state, row, col-1) and check_valid_move(state, row+1, col-1)):
-        # do a move left on state copy and add that as a successor
-
-        # make a copy of the current state
-        new_successor = deepcopy(state)
-        
-        # shift left
-        new_successor.board.grid[row, col-1] = char_goal
-        new_successor.board.grid[row+1, col-1] = char_goal
-        
-        # empty spots below the piece due to its shift left
-        new_successor.board.grid[row, col+1] = char_empty
-        new_successor.board.grid[row+1, col+1] = char_empty
-
-        # compute the new_successor's cost and update that attribute
-        # mark the 4 positions of the 2x2 piece in the OG state as completed
-        # add the successor to the heap
-
-    # check right
-    if(check_valid_move(state, row, col+2) and check_valid_move(state, row+1, col+2)):
-        # do a move right on state copy and add that as a successor
-
-        # make a copy of the current state
-        new_successor = deepcopy(state)
-        
-        # shift right
-        new_successor.board.grid[row, col+2] = char_goal
-        new_successor.board.grid[row+1, col+2] = char_goal
-        
-        # empty spots below the piece due to its shift right
-        new_successor.board.grid[row, col] = char_empty
-        new_successor.board.grid[row+1, col] = char_empty
-
-        # compute the new_successor's cost and update that attribute
-        # mark the 4 positions of the 2x2 piece in the OG state as completed
-        # add the successor to the heap
-    
-
-def do_1x1_piece(state, row, col):
-    # check up
-    if(check_valid_move(state, row-1, col)):
-        new_successor = deepcopy(state)
-        new_successor.board.grid[row-1][col] = char_single
-        new_successor.board.grid[row][col] = char_empty
-
-    # check down
-    if(check_valid_move(state, row+1, col)):
-        new_successor = deepcopy(state)
-        new_successor.board.grid[row+1][col] = char_single
-        new_successor.board.grid[row][col] = char_empty
-
-
-    #check left
-    if(check_valid_move(state, row, col-1)):
-        new_successor = deepcopy(state)
-        new_successor.board.grid[row][col-1] = char_single
-        new_successor.board.grid[row][col] = char_empty
-
-
-    # check right
-    if(check_valid_move(state, row, col+1)):
-        new_successor = deepcopy(state)
-        new_successor.board.grid[row][col+1] = char_single
-        new_successor.board.grid[row][col] = char_empty
-
-    
-    # compute the new_successor's cost and update that attribute
-    # mark the 4 positions of the 2x2 piece in the OG state as completed
-    # add the successor to the heap
-
-def do_1x2_piece(state, row, col):
-    # first check orientation of the piece, whether its 2x1 or 1x2
-    
-    # check if its a 1x2 piece
-    if(state.board.grid[row][col] == '<'):
-        # check if we can move up
-        if(check_valid_move(state, row-1, col) and check_valid_move(state, row-1, col+1)):
-            new_successor = deepcopy(state)
-            
-            # shift up
-            new_successor[row-1][col] = '<'
-            new_successor[row-1][col+1] = '>'
-
-            # remove below due to shift up
-            new_successor[row][col] = char_empty
-            new_successor[row][col+1] = char_empty
-        
-        # check if we can move down
-        if(check_valid_move(state, row+1, col) and check_valid_move(state, row+1, col+1)):
-            new_successor = deepcopy(state)
-            
-            # shift down
-            new_successor[row+1][col] = '<'
-            new_successor[row+1][col+1] = '>'
-
-            # remove below due to shift down
-            new_successor[row][col] = char_empty
-            new_successor[row][col+1] = char_empty
-        
-        # check if we can move left
-        if(check_valid_move(state, row, col-1)):
-            new_successor = deepcopy(state)
-
-            new_successor[row][col-1] = '<'
-            new_successor[row][col] = '>'
-            new_successor[row][col+1] = char_empty
-
-        # check if we can move right
-        if(check_valid_move(state, row, col+2)):
-            new_successor = deepcopy(state)
-
-            new_successor[row][col+2] = '>'
-            new_successor[row][col+1] = '<'
-            new_successor[row][col] = char_empty    
-    
-
-    # else it is vertical orientation (2x1 piece)
-    else:
-        # check vertical movement
-        if(check_valid_move(state, row-1, col)):
-            new_successor = deepcopy(state)
-
-            new_successor[row-1][col] = '^'
-            new_successor[row][col] = 'v'
-            new_successor[row+1][col] = char_empty
-        
-        # check downward movement
-        if(check_valid_move(state, row+2, col)):
-            new_successor = deepcopy(state)
-
-            new_successor[row+2][col] = 'v'
-            new_successor[row+1][col] = '^'
-            new_successor[row][col] = char_empty
-        
-        # check leftward movement
-        if(check_valid_move(state, row, col-1) and check_valid_move(state, row+1, col-1)):
-            # make a copy of the current state
-            new_successor = deepcopy(state)
-            
-            # shift left
-            new_successor.board.grid[row][col-1] = '^'
-            new_successor.board.grid[row+1][col-1] = 'v'
-
-            # current spots become empty due to shift left
-            new_successor.board.grid[row][col-1] = char_empty
-            new_successor.board.grid[row+1][col-1] = char_empty
-
-
-        # check rightward movement
-        if(check_valid_move(state, row, col+1) and check_valid_move(state, row+1, col+1)):
-            # make a copy of the current state
-            new_successor = deepcopy(state)
-            
-            # shift left
-            new_successor.board.grid[row][col+1] = '^'
-            new_successor.board.grid[row+1][col+1] = 'v'
-
-            # current spots become empty due to shift left
-            new_successor.board.grid[row][col] = char_empty
-            new_successor.board.grid[row+1][col] = char_empty
 
 
 def DFS(state):
@@ -449,6 +266,239 @@ def A_star(state):
     # the cost so far is the number of moves that have been taken so far to reach the state from the start state
     # add states and repeat until the prioirty queue is empty
     pass
+
+
+
+
+# def get_heuristic(state):
+#     # need to find the top-left corner of goal piece and compute manhattan
+#     curr_grid = state.board.grid
+#     for i in range(len(curr_grid)):
+#         for j in range(len(curr_grid[0])):
+#             if(curr_grid[i][j] == char_goal):
+#                 return manhattan_distance((i, j) , (3,1))
+#                 # return manhattan distance from upper left of goal piece to the goal position 3,1
+
+
+
+
+
+
+
+
+# def generate_successors(state):
+#     # first find the positions of each of the empty tiles
+#     curr_grid = state.board.grid
+
+#     for i in range(len(curr_grid)):
+#         for j in range(len(curr_grid[0])):
+#             print("hello")
+
+
+
+# # pass in the row and col of the 2x2 piece (! which is top left-most position of it)
+# def do_2x2_piece(state, row, col):
+#     # check up
+#     if(check_valid_move(state, row-1, col) and check_valid_move(state, row-1, col+1)):
+#         # do a move up on state copy and add that as a successor
+        
+#         # make a copy of the current state
+#         new_successor = deepcopy(state)
+        
+#         # shift up
+#         new_successor.board.grid[row-1, col] = char_goal
+#         new_successor.board.grid[row-1, col+1] = char_goal
+        
+#         # empty spots below the piece due to its shift up
+#         new_successor.board.grid[row+1, col] = char_empty
+#         new_successor.board.grid[row+1, col+1] = char_empty
+
+#         # compute the new_successor's cost and update that attribute
+#         # mark the 4 positions of the 2x2 piece in the OG state as completed
+#         # add the successor to the heap
+
+    
+#     # check down
+#     if(check_valid_move(state, row+2, col) and check_valid_move(state, row+2, col+1)):
+#         # do a move down on state copy and add that as a successor
+
+#         # make a copy of the current state
+#         new_successor = deepcopy(state)
+        
+#         # shift down
+#         new_successor.board.grid[row+2, col] = char_goal
+#         new_successor.board.grid[row+2, col+1] = char_goal
+        
+#         # empty spots below the piece due to its shift down
+#         new_successor.board.grid[row, col] = char_empty
+#         new_successor.board.grid[row, col+1] = char_empty
+
+#         # compute the new_successor's cost and update that attribute
+#         # mark the 4 positions of the 2x2 piece in the OG state as completed
+#         # add the successor to the heap
+
+    
+#     # check left
+#     if(check_valid_move(state, row, col-1) and check_valid_move(state, row+1, col-1)):
+#         # do a move left on state copy and add that as a successor
+
+#         # make a copy of the current state
+#         new_successor = deepcopy(state)
+        
+#         # shift left
+#         new_successor.board.grid[row, col-1] = char_goal
+#         new_successor.board.grid[row+1, col-1] = char_goal
+        
+#         # empty spots below the piece due to its shift left
+#         new_successor.board.grid[row, col+1] = char_empty
+#         new_successor.board.grid[row+1, col+1] = char_empty
+
+#         # compute the new_successor's cost and update that attribute
+#         # mark the 4 positions of the 2x2 piece in the OG state as completed
+#         # add the successor to the heap
+
+#     # check right
+#     if(check_valid_move(state, row, col+2) and check_valid_move(state, row+1, col+2)):
+#         # do a move right on state copy and add that as a successor
+
+#         # make a copy of the current state
+#         new_successor = deepcopy(state)
+        
+#         # shift right
+#         new_successor.board.grid[row, col+2] = char_goal
+#         new_successor.board.grid[row+1, col+2] = char_goal
+        
+#         # empty spots below the piece due to its shift right
+#         new_successor.board.grid[row, col] = char_empty
+#         new_successor.board.grid[row+1, col] = char_empty
+
+#         # compute the new_successor's cost and update that attribute
+#         # mark the 4 positions of the 2x2 piece in the OG state as completed
+#         # add the successor to the heap
+    
+
+# def do_1x1_piece(state, row, col):
+#     # check up
+#     if(check_valid_move(state, row-1, col)):
+#         new_successor = deepcopy(state)
+#         new_successor.board.grid[row-1][col] = char_single
+#         new_successor.board.grid[row][col] = char_empty
+
+#     # check down
+#     if(check_valid_move(state, row+1, col)):
+#         new_successor = deepcopy(state)
+#         new_successor.board.grid[row+1][col] = char_single
+#         new_successor.board.grid[row][col] = char_empty
+
+
+#     #check left
+#     if(check_valid_move(state, row, col-1)):
+#         new_successor = deepcopy(state)
+#         new_successor.board.grid[row][col-1] = char_single
+#         new_successor.board.grid[row][col] = char_empty
+
+
+#     # check right
+#     if(check_valid_move(state, row, col+1)):
+#         new_successor = deepcopy(state)
+#         new_successor.board.grid[row][col+1] = char_single
+#         new_successor.board.grid[row][col] = char_empty
+
+    
+#     # compute the new_successor's cost and update that attribute
+#     # mark the 4 positions of the 2x2 piece in the OG state as completed
+#     # add the successor to the heap
+
+# def do_1x2_piece(state, row, col):
+#     # first check orientation of the piece, whether its 2x1 or 1x2
+    
+#     # check if its a 1x2 piece
+#     if(state.board.grid[row][col] == '<'):
+#         # check if we can move up
+#         if(check_valid_move(state, row-1, col) and check_valid_move(state, row-1, col+1)):
+#             new_successor = deepcopy(state)
+            
+#             # shift up
+#             new_successor[row-1][col] = '<'
+#             new_successor[row-1][col+1] = '>'
+
+#             # remove below due to shift up
+#             new_successor[row][col] = char_empty
+#             new_successor[row][col+1] = char_empty
+        
+#         # check if we can move down
+#         if(check_valid_move(state, row+1, col) and check_valid_move(state, row+1, col+1)):
+#             new_successor = deepcopy(state)
+            
+#             # shift down
+#             new_successor[row+1][col] = '<'
+#             new_successor[row+1][col+1] = '>'
+
+#             # remove below due to shift down
+#             new_successor[row][col] = char_empty
+#             new_successor[row][col+1] = char_empty
+        
+#         # check if we can move left
+#         if(check_valid_move(state, row, col-1)):
+#             new_successor = deepcopy(state)
+
+#             new_successor[row][col-1] = '<'
+#             new_successor[row][col] = '>'
+#             new_successor[row][col+1] = char_empty
+
+#         # check if we can move right
+#         if(check_valid_move(state, row, col+2)):
+#             new_successor = deepcopy(state)
+
+#             new_successor[row][col+2] = '>'
+#             new_successor[row][col+1] = '<'
+#             new_successor[row][col] = char_empty    
+    
+
+#     # else it is vertical orientation (2x1 piece)
+#     else:
+#         # check vertical movement
+#         if(check_valid_move(state, row-1, col)):
+#             new_successor = deepcopy(state)
+
+#             new_successor[row-1][col] = '^'
+#             new_successor[row][col] = 'v'
+#             new_successor[row+1][col] = char_empty
+        
+#         # check downward movement
+#         if(check_valid_move(state, row+2, col)):
+#             new_successor = deepcopy(state)
+
+#             new_successor[row+2][col] = 'v'
+#             new_successor[row+1][col] = '^'
+#             new_successor[row][col] = char_empty
+        
+#         # check leftward movement
+#         if(check_valid_move(state, row, col-1) and check_valid_move(state, row+1, col-1)):
+#             # make a copy of the current state
+#             new_successor = deepcopy(state)
+            
+#             # shift left
+#             new_successor.board.grid[row][col-1] = '^'
+#             new_successor.board.grid[row+1][col-1] = 'v'
+
+#             # current spots become empty due to shift left
+#             new_successor.board.grid[row][col-1] = char_empty
+#             new_successor.board.grid[row+1][col-1] = char_empty
+
+
+#         # check rightward movement
+#         if(check_valid_move(state, row, col+1) and check_valid_move(state, row+1, col+1)):
+#             # make a copy of the current state
+#             new_successor = deepcopy(state)
+            
+#             # shift left
+#             new_successor.board.grid[row][col+1] = '^'
+#             new_successor.board.grid[row+1][col+1] = 'v'
+
+#             # current spots become empty due to shift left
+#             new_successor.board.grid[row][col] = char_empty
+#             new_successor.board.grid[row+1][col] = char_empty
 
 
 # ideas for generating successors:
