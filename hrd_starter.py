@@ -60,6 +60,7 @@ class Board:
         # using the information on the pieces when a board is being created.
         # A grid contains the symbol for representing the pieces on the board.
         self.grid = [] # we append lines (the rows) which makes in 2D
+        self.goal_piece_coordinates = []
         self.__construct_grid()
 
 
@@ -77,6 +78,10 @@ class Board:
 
         for piece in self.pieces:
             if piece.is_goal:
+                # store the (x,y) coordinates of the 2x2 goal piece
+                self.goal_piece_coordinates[0] = piece.coord_x
+                self.goal_piece_coordinates[1] = piece.coord_y
+                
                 self.grid[piece.coord_y][piece.coord_x] = char_goal
                 self.grid[piece.coord_y][piece.coord_x + 1] = char_goal
                 self.grid[piece.coord_y + 1][piece.coord_x] = char_goal
@@ -198,13 +203,20 @@ if __name__ == "__main__":
 
 
 
-def manhattan_distance(position1, position2):
-    return (abs(position1[0] - position2[0]) + abs(position1[1] - position2[1]))
+def manhattan_distance(state):
+    position_1_row = state.board.goal_piece_coordinates[1]
+    position_1_col = state.board.goal_piece_coordinates[0]
+
+    # the goal coordinate for the 2x2 piece is at (ro1, col) = (3, 1)
+    position_end_row = 3
+    position_end_col = 1
+
+    return (abs(position_1_row - position_end_row) + abs(position_1_col - position_end_col))
+
 
 def goal_test(state):
-    #return (state.board.grid[3][1] == char_goal) 
-    # if the top left corner of goal char is at 3,1 then returns true
     return (state.board.grid[4][1] == char_goal and state.board.grid[4][2] == char_goal)
+    # alternatively, I could just check if the goal_piece_coordinates are at (row,col) = (3,1)
 
 
 # this function is used to move the piece and then create and return a new state
