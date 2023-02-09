@@ -60,7 +60,7 @@ class Board:
         # using the information on the pieces when a board is being created.
         # A grid contains the symbol for representing the pieces on the board.
         self.grid = [] # we append lines (the rows) which makes in 2D
-        self.goal_piece_coordinates = []
+        self.goal_piece_coordinates = [] # added this to keep track of the 2x2 piece's coordinates
         self.__construct_grid()
 
 
@@ -219,6 +219,14 @@ def goal_test(state):
     # alternatively, I could just check if the goal_piece_coordinates are at (row,col) = (3,1)
 
 
+# need the spot to be empty and within the board for the spot to be valid
+def check_valid_spot(state, row, col):
+    if(state.board.grid[row][col] == char_empty and (0 <= row < len(state.board.width) and (0 <= col < len(state.board.height)))):
+        return True
+    else:
+        return False 
+
+
 # this function is used to move the piece and then create and return a new state
 # direction can be 'up', 'down', 'left', or 'right'
 def get_new_state(state, piece_x, piece_y, direction):
@@ -321,13 +329,6 @@ def generate_successors(state):
 
     return successors
 
-# need the spot to be empty and within the board for the spot to be valid
-def check_valid_spot(state, row, col):
-    if(state.board.grid[row][col] == char_empty and (0 <= row < len(state.board.width) and (0 <= col < len(state.board.height)))):
-        return True
-    else:
-        return False 
-
 
 
 
@@ -337,7 +338,25 @@ def DFS(state):
     # push the initial state (argument) onto the stack
     # pop the top state from the stack, if it is the goal then return
     # else generate all successors and add them to the stack and repeat the process until the stack is empty
-    pass
+    
+    frontier = [state]
+    visited = set()
+
+    while frontier:
+        curr_state = frontier.pop()
+
+        if goal_test(curr_state):
+            return curr_state
+        else:
+            visited.add(curr_state)
+            successors = generate_successors(curr_state)
+
+            # make sure we only add successor states that haven't been explored yet
+            for state in successors:
+                if state not in visited:
+                    frontier.append(state)
+    
+    return None # if no solution is found - goal state is never reached
 
 
 def A_star(state):
@@ -345,6 +364,10 @@ def A_star(state):
     # the cost so far is the number of moves that have been taken so far to reach the state from the start state
     # add states and repeat until the prioirty queue is empty
     pass
+
+
+
+
 
 
 
@@ -357,10 +380,6 @@ def A_star(state):
 #             if(curr_grid[i][j] == char_goal):
 #                 return manhattan_distance((i, j) , (3,1))
 #                 # return manhattan distance from upper left of goal piece to the goal position 3,1
-
-
-
-
 
 
 
