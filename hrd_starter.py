@@ -215,7 +215,7 @@ def get_new_state(state, piece_x, piece_y, direction):
     new_board = deepcopy(curr_board) # create a new board - will move piece on this board
 
     # find the piece on the new baord and update its position (move it up)           
-    for piece in new_board.state.pieces:
+    for piece in new_board.pieces:
         if(piece.coord_x == piece_x and piece.coord_y == piece_y):
             
             if direction == "left":
@@ -224,10 +224,10 @@ def get_new_state(state, piece_x, piece_y, direction):
             elif direction == "right":
                 piece.coord_x += 1
             
-            elif direction = "up":
+            elif direction == "up":
                 piece.coord_y += 1
             
-            else:
+            else: # moving the piece down
                 piece.coord_y -= 1
             
             # piece moved so now break out of loop
