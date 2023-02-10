@@ -243,6 +243,8 @@ def get_new_state(state, piece_x, piece_y, direction):
     test_board = Board(new_board.pieces) # to update grid
     updated_depth = state.depth + 1
     f_value = updated_depth + manhattan_distance(test_board)
+
+    print(f"Here is the f value of the new state: {f_value}")
     new_state = State(test_board, f = f_value, depth = updated_depth, parent = state)
     
     # print("here are the pieces of the new state: ")
@@ -369,7 +371,7 @@ def DFS(state):
             continue
 
         if goal_test(curr_state):
-            print(" we in the DFS goal state boiiiiiiiiiii")
+            #print(" we in the DFS goal state boiiiiiiiiiii")
             return curr_state
         else:
             # print("I am adding the following to visited:")
@@ -444,15 +446,36 @@ def write_to_file(first_state, filename, solution):
         file.write("\n")
 
         # write the solution to the file
+        counter = 0
+        
+        all_states = []
         while solution.parent != None:
-            for row in solution.board.grid:
+            all_states.append(solution)
+            solution = solution.parent
+        
+        all_states.reverse()
+
+        for state in all_states:
+            for row in state.board.grid:
                 for char in row:
                     file.write(str(char))
                 
                 file.write("\n")
             
             file.write("\n")
-            solution = solution.parent
+
+        # while solution.parent != None:
+        #     counter += 1
+        #     for row in solution.board.grid:
+        #         for char in row:
+        #             file.write(str(char))
+                
+        #         file.write("\n")
+            
+        #     file.write("\n")
+        #     solution = solution.parent
+        
+        #print(f"here is the count value: {counter}")
 
 
 if __name__ == "__main__":
