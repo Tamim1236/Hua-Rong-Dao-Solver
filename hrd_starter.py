@@ -62,6 +62,8 @@ class Board:
         self.goal_piece_coordinates = [0, 0] # added this to keep track of the 2x2 piece's coordinates
         self.__construct_grid()
 
+        #self.id_val = hash(str(self))
+
 
     def __construct_grid(self):
         """
@@ -129,7 +131,13 @@ class State:
         self.f = f
         self.depth = depth
         self.parent = parent
-        self.id = hash(board)  # The id for breaking ties.
+        
+        board_str = str(board.grid)
+        self.id = hash(board_str)
+
+        #self.id = board.id_val
+        
+        #self.id = hash(board)  # The id for breaking ties.
     
     # overloading the < operator for the heap used in A*
     def __lt__(self, other):
@@ -185,14 +193,14 @@ def manhattan_distance(board):
 
     # the goal coordinate for the 2x2 piece is at (x, y) = (1, 1)
     position_end_x = 1
-    position_end_y = 1
+    position_end_y = 3
 
     return (abs(position_1_x - position_end_x) + abs(position_1_y - position_end_y))
 
 
 def goal_test(state):
     # we could also check that the right grid spots have goal characters
-    return (state.board.goal_piece_coordinates == [1,1])
+    return (state.board.goal_piece_coordinates == [1,3])
 
 
 # need the spot to be empty and within the board for the spot to be valid
@@ -232,12 +240,14 @@ def get_new_state(state, piece_x, piece_y, direction):
     
     # now create a new state using this board and add it as a successor
     # f-value the same as the depth?
+    test_board = Board(new_board.pieces) # to update grid
     updated_depth = state.depth + 1
-    f_value = updated_depth + manhattan_distance(new_board)
-    new_state = State(new_board, f = f_value, depth = updated_depth, parent = state)
+    f_value = updated_depth + manhattan_distance(test_board)
+    new_state = State(test_board, f = f_value, depth = updated_depth, parent = state)
     
-    print("here are the pieces of the new state: ")
-    print(new_state.board.pieces)
+    # print("here are the pieces of the new state: ")
+    # print(new_state.board.display())
+
     return new_state
 
 def generate_successors(state):
@@ -358,12 +368,16 @@ def DFS(state):
         curr_state.board.display()
         print()
 
-        # if curr_state.id in visited:
-        #     continue
+        if curr_state.id in visited:
+            continue
 
         if goal_test(curr_state):
+            print(" we in the DFS goal state boiiiiiiiiiii")
             return curr_state
         else:
+            # print("I am adding the following to visited:")
+            # print(visited)
+
             visited.add(curr_state.id)
             successors = generate_successors(curr_state)
 
@@ -372,6 +386,7 @@ def DFS(state):
                 if state.id not in visited:
                     frontier.append(state)
     
+    print("I am about to return None")
     return None # if no solution is found - goal state is never reached
 
 
@@ -385,13 +400,18 @@ def A_star(state):
 
     while frontier:   
         curr_state = heappop(frontier)
-        print(curr_state.id)
+        # print(curr_state.id)
         if curr_state.id in visited:
             continue
         
         visited.add(curr_state.id)
 
         if goal_test(curr_state):
+            
+            print("reached the goal state, here is the board:")
+            curr_state.board.display()
+            #print()
+
             return curr_state
 
         curr_state.board.display()
@@ -414,10 +434,20 @@ def A_star(state):
 
 
 
-def write_to_file(filename, solution):
+def write_to_file(first_state, filename, solution):
+    
     with open(filename, "w") as file:
+        # write the initial solution to the file
+        for row in first_state.board.grid:
+            for char in row:
+                file.write(str(char))
+            
+            file.write("\n")
+        
+        file.write("\n")
+
         # write the solution to the file
-        for row in solution.board:
+        for row in solution.board.grid:
             for char in row:
                 file.write(str(char))
             
@@ -451,314 +481,14 @@ if __name__ == "__main__":
     # read the board from the file
     board = read_from_file(args.inputfile)
 
-    new_state = State(board, 0, 0, parent=None) # generate the initial state
+    first_state = State(board, 0, 0, parent=None) # generate the initial state
 
     # run the wanted search algorithm
     if args.algo == 'astar':
-        solution = A_star(new_state)
+        solution = A_star(first_state)
     else:
-        solution = DFS(new_state)
+        solution = DFS(first_state)
 
     # write the solution to the output file
-    write_to_file(args.outputfile, solution)
-
-
-
-
-# def get_heuristic(state):
-#     # need to find the top-left corner of goal piece and compute manhattan
-#     curr_grid = state.board.grid
-#     for i in range(len(curr_grid)):
-#         for j in range(len(curr_grid[0])):
-#             if(curr_grid[i][j] == char_goal):
-#                 return manhattan_distance((i, j) , (3,1))
-#                 # return manhattan distance from upper left of goal piece to the goal position 3,1
-
-
-
-
-# def generate_successors(state):
-#     # first find the positions of each of the empty tiles
-#     curr_grid = state.board.grid
-
-#     for i in range(len(curr_grid)):
-#         for j in range(len(curr_grid[0])):
-#             print("hello")
-
-
-
-# # pass in the row and col of the 2x2 piece (! which is top left-most position of it)
-# def do_2x2_piece(state, row, col):
-#     # check up
-#     if(check_valid_move(state, row-1, col) and check_valid_move(state, row-1, col+1)):
-#         # do a move up on state copy and add that as a successor
-        
-#         # make a copy of the current state
-#         new_successor = deepcopy(state)
-        
-#         # shift up
-#         new_successor.board.grid[row-1, col] = char_goal
-#         new_successor.board.grid[row-1, col+1] = char_goal
-        
-#         # empty spots below the piece due to its shift up
-#         new_successor.board.grid[row+1, col] = char_empty
-#         new_successor.board.grid[row+1, col+1] = char_empty
-
-#         # compute the new_successor's cost and update that attribute
-#         # mark the 4 positions of the 2x2 piece in the OG state as completed
-#         # add the successor to the heap
-
-    
-#     # check down
-#     if(check_valid_move(state, row+2, col) and check_valid_move(state, row+2, col+1)):
-#         # do a move down on state copy and add that as a successor
-
-#         # make a copy of the current state
-#         new_successor = deepcopy(state)
-        
-#         # shift down
-#         new_successor.board.grid[row+2, col] = char_goal
-#         new_successor.board.grid[row+2, col+1] = char_goal
-        
-#         # empty spots below the piece due to its shift down
-#         new_successor.board.grid[row, col] = char_empty
-#         new_successor.board.grid[row, col+1] = char_empty
-
-#         # compute the new_successor's cost and update that attribute
-#         # mark the 4 positions of the 2x2 piece in the OG state as completed
-#         # add the successor to the heap
-
-    
-#     # check left
-#     if(check_valid_move(state, row, col-1) and check_valid_move(state, row+1, col-1)):
-#         # do a move left on state copy and add that as a successor
-
-#         # make a copy of the current state
-#         new_successor = deepcopy(state)
-        
-#         # shift left
-#         new_successor.board.grid[row, col-1] = char_goal
-#         new_successor.board.grid[row+1, col-1] = char_goal
-        
-#         # empty spots below the piece due to its shift left
-#         new_successor.board.grid[row, col+1] = char_empty
-#         new_successor.board.grid[row+1, col+1] = char_empty
-
-#         # compute the new_successor's cost and update that attribute
-#         # mark the 4 positions of the 2x2 piece in the OG state as completed
-#         # add the successor to the heap
-
-#     # check right
-#     if(check_valid_move(state, row, col+2) and check_valid_move(state, row+1, col+2)):
-#         # do a move right on state copy and add that as a successor
-
-#         # make a copy of the current state
-#         new_successor = deepcopy(state)
-        
-#         # shift right
-#         new_successor.board.grid[row, col+2] = char_goal
-#         new_successor.board.grid[row+1, col+2] = char_goal
-        
-#         # empty spots below the piece due to its shift right
-#         new_successor.board.grid[row, col] = char_empty
-#         new_successor.board.grid[row+1, col] = char_empty
-
-#         # compute the new_successor's cost and update that attribute
-#         # mark the 4 positions of the 2x2 piece in the OG state as completed
-#         # add the successor to the heap
-    
-
-# def do_1x1_piece(state, row, col):
-#     # check up
-#     if(check_valid_move(state, row-1, col)):
-#         new_successor = deepcopy(state)
-#         new_successor.board.grid[row-1][col] = char_single
-#         new_successor.board.grid[row][col] = char_empty
-
-#     # check down
-#     if(check_valid_move(state, row+1, col)):
-#         new_successor = deepcopy(state)
-#         new_successor.board.grid[row+1][col] = char_single
-#         new_successor.board.grid[row][col] = char_empty
-
-
-#     #check left
-#     if(check_valid_move(state, row, col-1)):
-#         new_successor = deepcopy(state)
-#         new_successor.board.grid[row][col-1] = char_single
-#         new_successor.board.grid[row][col] = char_empty
-
-
-#     # check right
-#     if(check_valid_move(state, row, col+1)):
-#         new_successor = deepcopy(state)
-#         new_successor.board.grid[row][col+1] = char_single
-#         new_successor.board.grid[row][col] = char_empty
-
-    
-#     # compute the new_successor's cost and update that attribute
-#     # mark the 4 positions of the 2x2 piece in the OG state as completed
-#     # add the successor to the heap
-
-# def do_1x2_piece(state, row, col):
-#     # first check orientation of the piece, whether its 2x1 or 1x2
-    
-#     # check if its a 1x2 piece
-#     if(state.board.grid[row][col] == '<'):
-#         # check if we can move up
-#         if(check_valid_move(state, row-1, col) and check_valid_move(state, row-1, col+1)):
-#             new_successor = deepcopy(state)
-            
-#             # shift up
-#             new_successor[row-1][col] = '<'
-#             new_successor[row-1][col+1] = '>'
-
-#             # remove below due to shift up
-#             new_successor[row][col] = char_empty
-#             new_successor[row][col+1] = char_empty
-        
-#         # check if we can move down
-#         if(check_valid_move(state, row+1, col) and check_valid_move(state, row+1, col+1)):
-#             new_successor = deepcopy(state)
-            
-#             # shift down
-#             new_successor[row+1][col] = '<'
-#             new_successor[row+1][col+1] = '>'
-
-#             # remove below due to shift down
-#             new_successor[row][col] = char_empty
-#             new_successor[row][col+1] = char_empty
-        
-#         # check if we can move left
-#         if(check_valid_move(state, row, col-1)):
-#             new_successor = deepcopy(state)
-
-#             new_successor[row][col-1] = '<'
-#             new_successor[row][col] = '>'
-#             new_successor[row][col+1] = char_empty
-
-#         # check if we can move right
-#         if(check_valid_move(state, row, col+2)):
-#             new_successor = deepcopy(state)
-
-#             new_successor[row][col+2] = '>'
-#             new_successor[row][col+1] = '<'
-#             new_successor[row][col] = char_empty    
-    
-
-#     # else it is vertical orientation (2x1 piece)
-#     else:
-#         # check vertical movement
-#         if(check_valid_move(state, row-1, col)):
-#             new_successor = deepcopy(state)
-
-#             new_successor[row-1][col] = '^'
-#             new_successor[row][col] = 'v'
-#             new_successor[row+1][col] = char_empty
-        
-#         # check downward movement
-#         if(check_valid_move(state, row+2, col)):
-#             new_successor = deepcopy(state)
-
-#             new_successor[row+2][col] = 'v'
-#             new_successor[row+1][col] = '^'
-#             new_successor[row][col] = char_empty
-        
-#         # check leftward movement
-#         if(check_valid_move(state, row, col-1) and check_valid_move(state, row+1, col-1)):
-#             # make a copy of the current state
-#             new_successor = deepcopy(state)
-            
-#             # shift left
-#             new_successor.board.grid[row][col-1] = '^'
-#             new_successor.board.grid[row+1][col-1] = 'v'
-
-#             # current spots become empty due to shift left
-#             new_successor.board.grid[row][col-1] = char_empty
-#             new_successor.board.grid[row+1][col-1] = char_empty
-
-
-#         # check rightward movement
-#         if(check_valid_move(state, row, col+1) and check_valid_move(state, row+1, col+1)):
-#             # make a copy of the current state
-#             new_successor = deepcopy(state)
-            
-#             # shift left
-#             new_successor.board.grid[row][col+1] = '^'
-#             new_successor.board.grid[row+1][col+1] = 'v'
-
-#             # current spots become empty due to shift left
-#             new_successor.board.grid[row][col] = char_empty
-#             new_successor.board.grid[row+1][col] = char_empty
-
-
-# ideas for generating successors:
-#   - for each piece on the board, check for the validity (if empty spot) of each up, down, left, right positions
-#     (check_valid_move() can be one of the helper functions)
-#   - if the move is valid, then move the piece on a copy of the current state, then add this state to list
-
-
-
-
-
-
-
-
-       
-        # # try moving up
-        # if(check_valid_spot(state, x, y-1)):
-        #     # if 2x2 or 1x2 piece we need to check for another empty spot
-        #     if(piece.is_goal or piece.orientation == 'h'):
-        #         if(check_valid_spot(state, x+1, y-1)):
-        #             # now generate the new state
-        #             new_state = get_new_state(state, piece.coord_x, piece.coord_y, "up")
-        #             successors.append(new_state)
-            
-        #     # else its just a 1x1 piece
-        #     else:
-        #         new_state = get_new_state(state, piece.coord_x, piece.coord_y, "up")
-        #         successors.append(new_state)
-
-        # # try moving down
-        # if(check_valid_spot(state, x, y+1)):
-        #     if(piece.is_goal):
-        #         if(check_valid_spot(state, x+1, y-1)):
-        #             # now generate the new state
-        #             new_state = get_new_state(state, piece.coord_x, piece.coord_y, "down")
-        #             successors.append(new_state)
-            
-        #     elif(piece.orientation == 'h'):
-        #         pass
-            
-        #     # else its just a 1x1 piece
-        #     else:
-        #         new_state = get_new_state(state, piece.coord_x, piece.coord_y, "down")
-        #         successors.append(new_state)
-
-
-        # # try moving left
-        # if(check_valid_spot(state, x-1, y)):
-        #     if(piece.is_goal or piece.orientation == 'v'):
-        #         if(check_valid_spot(state, x-1, y-1)):
-        #             # now generate the new state
-        #             new_state = get_new_state(state, piece.coord_x, piece.coord_y, "left")
-        #             successors.append(new_state)
-            
-        #     # else its just a 1x1 piece
-        #     else:
-        #         new_state = get_new_state(state, piece.coord_x, piece.coord_y, "left")
-        #         successors.append(new_state)
-
-
-        # # try moving right
-        # if(check_valid_spot(state, x+1, y)):
-        #     if(piece.is_goal or piece.orientation == 'v'):
-        #         if(check_valid_spot(state, x+1, y-1)):
-        #             # now generate the new state
-        #             new_state = get_new_state(state, piece.coord_x, piece.coord_y, "right")
-        #             successors.append(new_state)
-            
-        #     # else its just a 1x1 piece
-        #     else:
-        #         new_state = get_new_state(state, piece.coord_x, piece.coord_y, "right")
-        #         successors.append(new_state)
+    # output_file = open(args.outputfile, "x")
+    write_to_file(first_state, args.outputfile, solution)
