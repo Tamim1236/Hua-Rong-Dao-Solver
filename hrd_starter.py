@@ -351,9 +351,6 @@ def generate_successors(state):
 
 
 
-
-
-
 def DFS(state):
     # push the initial state (argument) onto the stack
     # pop the top state from the stack, if it is the goal then return
@@ -447,11 +444,15 @@ def write_to_file(first_state, filename, solution):
         file.write("\n")
 
         # write the solution to the file
-        for row in solution.board.grid:
-            for char in row:
-                file.write(str(char))
+        while solution.parent != None:
+            for row in solution.board.grid:
+                for char in row:
+                    file.write(str(char))
+                
+                file.write("\n")
             
             file.write("\n")
+            solution = solution.parent
 
 
 if __name__ == "__main__":
